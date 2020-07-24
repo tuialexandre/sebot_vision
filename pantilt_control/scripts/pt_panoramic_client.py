@@ -33,7 +33,7 @@ pan_passo = [22.5, 22.5, 24, 30, 40, 360]
 voltando = False
 contNamePhotos = 0
 
-def pt_panoramic_client(self)
+def pt_panoramic_client(self):
     rospy.wait_for_service('pan_tilt_control')
     try:
         pt_panoramic = rospy.ServiceProxy('pan_tilt_control', PantilControl)
