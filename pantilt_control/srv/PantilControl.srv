@@ -1,0 +1,5 @@
+string operation_type
+string operation_specification
+int32 required_value
+---
+bool response_sucess
