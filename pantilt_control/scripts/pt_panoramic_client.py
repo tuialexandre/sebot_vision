@@ -21,45 +21,44 @@ def take_picture(type_image, name_file):
 #H: 90 V: 30 - Sobreposicao=0
 tilt = [0, 30, 60, 90]          # Ângulo do tilt
 pan_fotosH = [4, 4, 4, 1]       # Número de fotos
-pan_passo = [90, 90, 90, 360]   # Passo do Pan
+pan_steps = [90, 90, 90, 360]   # Passo do Pan
 newAngle = 0
 '''
 
-limitePanTilt = 360
+pan_tilt_limit = 360
 # H: 34 V: 25.5 - Sobreposicao=30%
 tilt = [0, 17.85, 35.7, 53.55, 71.4, 90]
 # pan_fotosH = [16, 16, 15, 12, 9, 1]
-pan_passo = [22.5, 22.5, 24, 30, 40, 360]
-voltando = False
-contNamePhotos = 0
+pan_steps = [22.5, 22.5, 24, 30, 40, 360]
+returning = False
+name_photos_count = 0
 
 def pt_panoramic_client(self):
     rospy.wait_for_service('pan_tilt_control')
     try:
         pt_panoramic = rospy.ServiceProxy('pan_tilt_control', PantilControl)
 
-        for idx, anguloTilt in enumerate(tilt):
-            if anguloTilt >= limitePanTilt:
-                anguloTilt = limitePanTilt - 1
-            resp = pt_panoramic('panoramic', 'tilt', anguloTilt) # -------- Chama o serviço
-            passoPanAtual = pan_passo[idx]
-            numeroDePassos = math.ceil(360 / passoPanAtual)
-            contPhotosPan = 0
-            while contPhotosPan < numeroDePassos:
-                if voltando:
-                    anguloAtual = 360 - contPhotosPan * passoPanAtual
+        for idx, tilt_angle in enumerate(tilt):
+            if tilt_angle >= pan_tilt_limit:
+                tilt_angle = pan_tilt_limit - 1
+            resp = pt_panoramic('panoramic', 'tilt', tilt_angle) # -------- Chama o serviço
+            current_step = pan_steps[idx]
+            steps_count = math.ceil(360 / current_step)
+            pan_photos_count = 0
+            while pan_photos_count < steps_count:
+                if returning:
+                    current_angle = 360 - pan_photos_count * current_step
                 else:
-                    anguloAtual = contPhotosPan * passoPanAtual
-                if anguloAtual >= limitePanTilt:
-                    anguloAtual = limitePanTilt - 1
-                resp = pt_panoramic('panoramic', 'pan', anguloAtual) # ----- Chama o serviço
-                take_picture(0, contNamePhotos)
-                take_picture(1, contNamePhotos)
-                statusFile = path.exists("{0}.jpg".format(contNamePhotos))
-                if statusFile:
-                    contPhotosPan = contPhotosPan + 1
-                    contNamePhotos = contNamePhotos + 1
-            voltando = not voltando
+                    current_angle = pan_photos_count * current_step
+                if current_angle >= pan_tilt_limit:
+                    current_angle = pan_tilt_limit - 1
+                resp = pt_panoramic('panoramic', 'pan', current_angle) # ----- Chama o serviço
+                take_picture(0, name_photos_count)
+                take_picture(1, name_photos_count)
+                if path.exists("{0}.jpg".format(name_photos_count)):
+                    pan_photos_count = pan_photos_count + 1
+                    name_photos_count = name_photos_count + 1
+            returning = not returning
         return resp.response_sucess
     except rospy.ServiceException as e:
         print("Service call failed: %e"%e)
