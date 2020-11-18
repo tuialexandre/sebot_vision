@@ -13,7 +13,7 @@ pantilt.get_tilt_angle()
 del pantilt
 
 Structure of the pelco-D frame
-[sincronismo, addres, command 1, command 2, data 1, data 2, checksun]
+[synchronism, addres, command 1, command 2, data 1, data 2, checksun]
 '''
 
 
