@@ -1,0 +1,37 @@
+
+readme
+
+The pantilt_control_code_test code is a communication simulator with a pan tilt
+The pantilt_control_code code is for use with the pantilt is present
+
+To use one or the other, simply uncomment the call that is within the service.
+
+
+This package contains 3 scripts
+
+The variables that clients receive are in the srv / PantiltControl file
+
+    1) string operation_type
+    2) string operation_specification
+    3) int32 required_value
+    ---
+    4) bool response_sucess
+
+1) operation_type
+
+    operation_type = "set_angle" (Used by the pantilt_panoramic_client.py  and pantilt_setangle_client.py client)
+    
+        2) operation_specification = Is a "pan" or "tilt" string
+        
+        3) required_value = angle value
+    
+    
+    operation_type = "teleoperation" (Used by the pantilt_teleoperation_client.py)
+    
+        2) operation_specification = Can be a 'right', 'left', 'up', 'down', 'right_and_up', 'right_and_down',
+                                      'left_and_up' or 'left_and_down' string.
+                                      
+        3) required_value = It is the speed in an integer value (0 <= speed <= 60)
+
+
+
