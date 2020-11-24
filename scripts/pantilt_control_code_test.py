@@ -1,7 +1,9 @@
-import serial
-import time
-
-'''  To call this code only
+''' 
+This code only simulates a communication with a pantilt, so see that the 
+communication commands are comments.
+It will only be analyzed if the desired command is correct.
+-----------------------------------------------------------------------------
+To call this code only
 import pantilt_control_code as pt
 pantil = pt.PanTilt('/dev/ttyUSB0')  # Enter with the pantilt USB port
 # For choose string == 'pan' or 'tilt' in the entry
@@ -16,13 +18,16 @@ Structure of the pelco-D frame
 [synchronism, addres, command 1, command 2, data 1, data 2, checksun]
 '''
 
+# import serial
+import time
+
 
 class PanTilt():
 
     def __init__(self, port):
         self._data_write = [255, 1, 0, 0, 0, 0, 0]  # Pelco-D frame
         self._data_read = [255, 1, 0, 0, 0, 0, 0]
-        self._ser = serial.Serial(port, 2400, timeout=1)
+        # self._ser = serial.Serial(port, 2400, timeout=1)
         self._byte_query_pan = 81  # Query Pan Position
         self._byte_query_tilt = 83  # Query Tilt position
         # pdb.set_trace()
@@ -30,7 +35,8 @@ class PanTilt():
     def stop(self):
         print('Stop \n')
         self._data_write = [255, 1, 0, 0, 0, 0, 0]
-        self._ser.write(self._data_write)  # Write in the serial port
+        # self._ser.write(self._data_write)  # Write in the serial port
+        print(self._data_write)
 
     def get_pan_angle(self):
         return self.read_serial_port_and_returns_angle(self._byte_query_pan)
@@ -50,7 +56,7 @@ class PanTilt():
         return angle
 
     def __del__(self):
-        self._ser.close()
+        # self._ser.close()
         print('Destructor...')
 
 
@@ -137,8 +143,10 @@ class StandardCommands(PanTilt):
             # Send to pantilt
 
             if valid_command is True:
-                print('Command is ok!')
-                self._ser.write(self._data_write)
+                print("Command is ok!\n")
+                # self._ser.write(self._data_write)
+                print("Send to pantilt >> ", self._data_write)
+                print("\n\n")
 
         except ZeroDivisionError as error:
             print('ZeroDivisionError')
@@ -170,36 +178,8 @@ class AdvancedCommands(PanTilt):
             # Defines the getter and setter in the function below
             self.type_range_and_command_checker(command, new_angle)
 
-            old_angle = self._getter()
-            number_of_attempts = 3
-            arrived_in_position = False
-
-            for attempt in range(number_of_attempts):
-                self._setter(new_angle)
-                start_time = time.time()
-                # time_variation = self.time_calculator(old_angle,
-                # new_angle, start_time)
-                self.time_calculator(old_angle, new_angle, start_time)
-                # print(self._getter(), new_angle)
-                angle_difference = self._angle_difference_calculator(
-                                            self._getter(), new_angle)
-                arrived_in_position = angle_difference <= 0.4
-                if arrived_in_position is True:
-                    break
-
-            if not arrived_in_position:
-                raise Exception("Failed to move to desired pan tilt position, "
-                                "necessary maintenance")
-
-            new_angle = self._getter()
-            # displacement = self._angle_difference_calculator(old_angle,
-            #                                                 new_angle)
-            # speed = displacement/time_variation
-            # print('\nold_angle, new_angle, displacement,'
-            #       ' time_variation, speed')
-            # print(f'{old_angle:.2f}   , {new_angle:.2f}   ,'
-            #      f'{displacement:.2f}     , {time_variation:.2f}
-            #      f,{speed:.2f}')
+            # Send command to pantilt
+            self._setter(new_angle)
 
         except ZeroDivisionError as error:
             print('ZeroDivisionError')
@@ -225,13 +205,13 @@ class AdvancedCommands(PanTilt):
         if command == 'pan':
             # print('command == pan')
 
-            if not (new_angle > 0 and new_angle < 360):
+            if not (new_angle >= 0 and new_angle <= 360):
+                print("new_angle = " , new_angle)
                 raise ValueError('Desired pan angle out of range'
                                  'Enter with 0< angle <360')
 
             self._getter = self.get_pan_angle
             self._setter = self.set_pan_angle
-            self._angle_difference_calculator = self.tilt_displacement_calculator
 
         elif command == 'tilt':
             if (new_angle > 90) and (new_angle < 311):
@@ -243,22 +223,24 @@ class AdvancedCommands(PanTilt):
 
             self._getter = self.get_tilt_angle
             self._setter = self.set_tilt_angle
-            self._angle_difference_calculator = self.pan_displacement_calculator
 
-        print('Command and angle input are OK!\n\n')
+        print('Command and angle input are OK!\n')
 
     def set_pan_angle(self, angle):
         angle = float(angle)
         self.frame_byte_calculator(angle, self._byte_set_pan)
-        self._ser.write(self._data_write)
+        # self._ser.write(self._data_write)
+        print('Send to pan >> ', self._data_write)
+        print("\n\n")
 
     def set_tilt_angle(self, angle):
         angle = float(angle)
-        # print('set_tilt_angle \n')
         self.frame_byte_calculator(angle, self._byte_set_tilt)
-        self._ser.write(self._data_write)
+        # self._ser.write(self._data_write)
+        print('Send to tilt >> ', self._data_write)
+        print("\n\n")
 
-    # Frame byte calculator from angle and direction(byte3)
+    # Frame byte calculator from angle and direction --> (byte3)
     def frame_byte_calculator(self, angle, byte3):
         self._data_write[3] = byte3
         self._data_write[4] = int(angle*100/256)
@@ -271,7 +253,7 @@ class AdvancedCommands(PanTilt):
             self._data_write[5] = 254
 
         # print(self._data_write[5])
-        print('Command sent:  ', self._data_write)
+        # print('Command sent:  ', self._data_write)
         self._data_write[6] = 10  # Can be any number
         """The correct thing is to put the checksum,
         but don't work in this hardware.
@@ -281,45 +263,3 @@ class AdvancedCommands(PanTilt):
                             + self._data_write[5])%256
         """
         return self._data_write
-
-    # Calcula o tempo ate chegar ao destino
-    def time_calculator(self, old_angle, new_angle, start_time):
-        """ iterations is number of correct iterations accumulated until you
-        accept that Pan Tilt has entered the desired range.
-        """
-        iterations = 3
-        cont = 1
-        read_interval = 0.5
-        previous_time = 0
-        maximum_pantilt_speed = 10  # degrees/seconds, Estimated based on tests
-        angle_difference = self._angle_difference_calculator(old_angle,
-                                                             new_angle)
-        maximum_time = max(angle_difference / maximum_pantilt_speed, 2)
-
-        while cont <= iterations:
-            if time.time() - previous_time >= read_interval:
-                previous_time = time.time()
-                current_time_variation = previous_time - start_time
-                current_angle = self._getter()  # Take the current angle
-                if current_time_variation > maximum_time:
-                    break
-                print('Current angle: ', current_angle)
-                print('Counter: ', cont)
-                angle_difference = self._angle_difference_calculator(
-                            current_angle, new_angle)
-                if angle_difference <= 0.4:
-                    read_interval = 0.001
-                    cont = cont + 1
-            time.sleep(0.1)
-        time_variation = time.time() - start_time
-        return time_variation
-
-    # Calcula o deslocamento em graus
-    def tilt_displacement_calculator(self, old_or_current_angle, new_angle):
-        angle_difference = abs(new_angle - old_or_current_angle)
-        return angle_difference
-
-    def pan_displacement_calculator(self, old_or_current_angle, new_angle):
-        angle_difference = new_angle - old_or_current_angle
-        angle_difference = abs((angle_difference+180) % 360 - 180)
-        return angle_difference
