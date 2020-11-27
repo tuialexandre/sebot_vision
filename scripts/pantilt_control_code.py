@@ -19,10 +19,10 @@ Structure of the pelco-D frame
 
 class PanTilt():
 
-    def __init__(self, port):
+    def __init__(self, serial_connection):
         self._data_write = [255, 1, 0, 0, 0, 0, 0]  # Pelco-D frame
         self._data_read = [255, 1, 0, 0, 0, 0, 0]
-        self._ser = serial.Serial(port, 2400, timeout=1)
+        self._ser = serial_connection
         self._byte_query_pan = 81  # Query Pan Position
         self._byte_query_tilt = 83  # Query Tilt position
         # pdb.set_trace()

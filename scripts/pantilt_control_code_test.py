@@ -46,11 +46,11 @@ class PanTilt():
 
     def read_serial_port_and_returns_angle(self, byte_query):
         self._cont_byte = 0
-        self._ser.write([255, 1, 0, byte_query, 0, 0, byte_query + 1])
+        # self._ser.write([255, 1, 0, byte_query, 0, 0, byte_query + 1])
         while self._cont_byte < 7:
-            self._data_str = self._ser.read(1)
-            self._byte = int.from_bytes(self._data_str, byteorder='big')
-            self._data_read.insert(self._cont_byte, self._byte)
+            # self._data_str = self._ser.read(1)
+            # self._byte = int.from_bytes(self._data_str, byteorder='big')
+            # self._data_read.insert(self._cont_byte, self._byte)
             self._cont_byte = self._cont_byte + 1
             angle = self._data_read[4]*256/100 + self._data_read[5]/100
         return angle

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from __future__ import print_function
+import serial
 
 ''' Import service '''
 from pantilt_control_ros_node.srv import PantiltControl
@@ -15,45 +16,45 @@ from pantilt_control_code_test import AdvancedCommands as set_angle_pantilt
 # from pantilt_control_code import StandardCommands as teleop_pantilt
 # from pantilt_control_code import AdvancedCommands as set_pantilt
 
-serial_port = '/dev/ttyUSB0'
-
 ''' Fazer um objeto para abrir a serial e iniciar o serviço '''
-# class Service():
+class PantiltControlService:
 
-#     def __init__(self):
-#         self.reset_service = rospy.Servic
-#         serial_port
+    def __init__(self):
 
+        self._serial_port = '/dev/ttyUSB0'
 
+        ''' Uncomment to simulate '''
+        self._ser = 'serial_simulator'
 
-def handle_pantilt_control(req):
+        ''' Uncomment when the pantilt is on '''
+        # self._ser = serial.Serial(self._serial_port, 2400, timeout=1)
 
-    print("operation_type = ", req.operation_type)
-    print("operation_specification | required_value = %s | %s" % (
-        req.operation_specification, req.required_value))
+        self._service = rospy.Service('pantilt_control',
+                                PantiltControl, self.handle_pantilt_control)
+        print("Ready to control pantilt\n\n")
 
-    if req.operation_type == "set_angle":
-        panomaric = set_angle_pantilt(serial_port)
-        panomaric.set_angle(req.operation_specification, req.required_value)
-        return PantiltControlResponse(True)
+    def handle_pantilt_control(self, req):
 
-    elif req.operation_type == "teleoperation":
-        teleop = teleop_pantilt(serial_port)
-        print("req.operation_type == teleoperation")
-        teleop.teleoperation(req.operation_specification, req.required_value)
-        return PantiltControlResponse(True)
+        print("operation_type = ", req.operation_type)
+        print("operation_specification | required_value = %s | %s" % (
+            req.operation_specification, req.required_value))
 
-    else:
-        return PantiltControlResponse(False)
+        if req.operation_type == "set_angle":
+            panomaric = set_angle_pantilt(self._ser)
+            panomaric.set_angle(req.operation_specification, req.required_value)
+            return PantiltControlResponse(True)
 
+        elif req.operation_type == "teleoperation":
+            teleop = teleop_pantilt(self._ser)
+            print("req.operation_type == teleoperation")
+            teleop.teleoperation(req.operation_specification, req.required_value)
+            return PantiltControlResponse(True)
 
-def pantilt_control_server():
-    rospy.init_node('pantilt_control_server')
-    service = rospy.Service('pantilt_control',
-                            PantiltControl, handle_pantilt_control)
-    print("Ready to control pantilt\n\n")
-    rospy.spin()
+        else:
+            return PantiltControlResponse(False)
 
 
 if __name__ == "__main__":
-    pantilt_control_server()
+    rospy.init_node('pantilt_control_server')
+    PantiltControlService()
+    rospy.spin()

@@ -27,7 +27,7 @@ def usage():
 if __name__ == "__main__":
     if len(sys.argv) == 3:
         command = str(sys.argv[1])
-        new_angle = int(sys.argv[2])
+        new_angle = float(sys.argv[2])
 
     else:
         print(usage())
