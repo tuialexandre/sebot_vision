@@ -21,13 +21,13 @@ class PantiltControlService:
 
     def __init__(self):
 
-        self._serial_port = '/dev/ttyUSB0'
 
         ''' Uncomment to simulate '''
         self._ser = 'serial_simulator'
 
         ''' Uncomment when the pantilt is on '''
-        # self._ser = serial.Serial(self._serial_port, 2400, timeout=1)
+        #  self._serial_port = '/dev/ttyUSB0'
+        # self._ser = serial.Serial(self._serial_port, 2400, timeout=1) # init Serial
 
         self._service = rospy.Service('pantilt_control',
                                 PantiltControl, self.handle_pantilt_control)
