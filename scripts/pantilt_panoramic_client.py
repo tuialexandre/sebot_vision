@@ -1,7 +1,10 @@
 #!/usr/bin/env python
+"""
+Author: Wesley Rodrigues e Rafael Stonoga
+Email: wesley.rodrigues@lactec.org.br
+"""
 
 from __future__ import print_function
-
 import math
 import os
 from os import path
@@ -20,20 +23,24 @@ def take_picture(type_image, name_file):
 
 
 '''
-#H: 90 V: 30 - Sobreposicao=0
-tilt = [0, 30, 60, 90]          # Angulo do tilt
-pan_fotosH = [4, 4, 4, 1]       # Numero de fotos
-pan_steps = [90, 90, 90, 360]   # Passo do Pan
+#H: 90 V: 30 - Overlap = 0
+tilt = [0, 30, 60, 90]          # Tilt angle
+pan_fotosH = [4, 4, 4, 1]       # Photos number
+pan_steps = [90, 90, 90, 360]   # Pan step
 newAngle = 0
 '''
 
 
 def pt_panoramic_client():
+
     pan_tilt_limit = 360
-    # H: 34 V: 25.5 - Sobreposicao=30%
+
+    # H: 34 V: 25.5 - Overlap = 30%
     tilt = [0, 17.85, 35.7, 53.55, 71.4, 90]
+
     # pan_fotosH = [16, 16, 15, 12, 9, 1]
     pan_steps = [22.5, 22.5, 24, 30, 40, 360]
+
     returning = False
     name_photos_count = 0
 
@@ -46,13 +53,16 @@ def pt_panoramic_client():
             if tilt_angle >= pan_tilt_limit:
                 tilt_angle = pan_tilt_limit - 1
 
+            # Calls the function to go to the desired angle
             resp = pt_panoramic('set_angle', 'tilt', tilt_angle)
 
+            # Update step
             current_step = pan_steps[idx]
+
             # math.ceil(x): returns the smallest integer not less than x
             steps_count = math.ceil(360 / current_step)
-            pan_photos_count = 0
 
+            pan_photos_count = 0
             while pan_photos_count < steps_count:
                 if returning:
                     current_angle = 360 - pan_photos_count * current_step
@@ -63,6 +73,7 @@ def pt_panoramic_client():
                 if current_angle >= pan_tilt_limit:
                     current_angle = pan_tilt_limit - 1
 
+                # Calls the function to go to the desired angle
                 resp = pt_panoramic('set_angle', 'pan', current_angle)
 
                 take_picture(0, name_photos_count)

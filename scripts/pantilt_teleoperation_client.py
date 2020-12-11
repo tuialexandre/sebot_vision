@@ -1,4 +1,9 @@
 #!/usr/bin/env python
+"""
+Author: Wesley Rodrigues
+Email: wesley.rodrigues@lactec.org.br
+"""
+
 
 from __future__ import print_function
 
