@@ -1,0 +1,4 @@
+<launch>
+	<node pkg="sebot_vision" name="sebot_vision_node" type="panoramic_manager.py" output="screen"> 
+	</node>
+</launch>
