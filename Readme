@@ -1,5 +1,8 @@
+# sebot_vision
 
-readme
+This node is responsible for moving the pantilt, initializing and configuring the cameras and creating panoramics for the SEBOT inspection routine
+
+## Instructions
 
 link to "Relatório de utilização": https://drive.google.com/file/d/1pzKdOxLq7fNBFOkT4lJFdNp4Gt6j8dqb/view?usp=sharing
 
@@ -17,7 +20,7 @@ The variables that clients receive are in the srv / PantiltControl file
     2) string operation_specification
     3) int32 required_value
     ---
-    4) bool response_sucess
+    4) bool response_success
 
 1) operation_type
 

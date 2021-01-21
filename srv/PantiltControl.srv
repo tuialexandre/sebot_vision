@@ -2,4 +2,4 @@ string operation_type
 string operation_specification
 float32 required_value
 ---
-bool response_sucess
+bool response_success

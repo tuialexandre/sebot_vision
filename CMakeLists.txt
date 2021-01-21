@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(pantilt_control_ros_node)
+project(sebot_vision)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
@@ -57,6 +57,7 @@ find_package(catkin REQUIRED COMPONENTS
 add_service_files(
   FILES
   PantiltControl.srv
+  Panoramic.srv
 )
 
 ## Generate actions in the 'action' folder
@@ -204,6 +205,6 @@ include_directories(
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
 
-catkin_install_python(PROGRAMS scripts/pantilt_control_server.py scripts/pantilt_panoramic_client.py scripts/pantilt_teleoperation_client.py
+catkin_install_python(PROGRAMS scripts/pantilt_control_server.py scripts/panoramic_manager.py scripts/pantilt_panoramic_client.py scripts/pantilt_teleoperation_client.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
