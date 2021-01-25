@@ -205,6 +205,6 @@ include_directories(
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
 
-catkin_install_python(PROGRAMS scripts/pantilt_control_server.py scripts/panoramic_manager.py scripts/pantilt_panoramic_client.py scripts/pantilt_teleoperation_client.py
+catkin_install_python(PROGRAMS scripts/panoramic_manager.py scripts/pantilt_panoramic_client.py scripts/pantilt_teleoperation_client.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )

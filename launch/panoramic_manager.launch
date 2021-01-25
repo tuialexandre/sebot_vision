@@ -1,4 +1,6 @@
 <launch>
+	<arg name="use_sim_time"  default="false"/>
+	    <param if="$(arg use_sim_time)" name="use_sim_time" value="true"/>
 	<node pkg="sebot_vision" name="sebot_vision_node" type="panoramic_manager.py" output="screen"> 
 	</node>
 </launch>

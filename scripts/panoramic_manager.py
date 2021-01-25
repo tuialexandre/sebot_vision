@@ -1,60 +1,73 @@
+#!/usr/bin/env python3
+
 from sebot_vision.srv import PantiltControl
 from sebot_vision.srv import PantiltControlResponse
 from sebot_vision.srv import Panoramic
 import rospy
 
+from pantilt_control_code_test import StandardCommands as teleop_pantilt_simulated
+from pantilt_control_code_test import AdvancedCommands as set_angle_pantilt_simulated
+
+from pantilt_control_code import StandardCommands as teleop_pantilt
+from pantilt_control_code import AdvancedCommands as set_angle_pantilt
+
 class PanoramicManager:
 
     def __init__(self):
-        load_configuration()
-        setup_pantilt()
-        setup_cameras()
+        print("Initializing Panoramic Manager...")
+        self.load_params()
+        self.setup_pantilt()
+        self.setup_cameras()
         
         print("Ready to control pantilt\n\n")
 
-    
+    def load_params(self):
+        self._use_sim_time = rospy.get_param('/use_sim_time')
+        self._serial_frequency = 2400
+        self._serial_time_out = 1
+        self._serial_port = '/dev/ttyUSB0'
+
     def setup_pantilt(self):
+        if(self._use_sim_time):
+            self._pantilt_serial = 'serial_simulator'
+        else:
+            self._pantilt_serial = serial.Serial(self._serial_port, self._serial_frequency, timeout=self._serial_time_out)
 
-        # Uncomment to simulate
-        self._ser = 'serial_simulator'
-
-        # Uncomment when the pantilt is on
-        # self._serial_port = '/dev/ttyUSB0'
-        # self._ser = serial.Serial(self._serial_port, 2400, timeout=1) # init Serial
-
-        self._service = rospy.Service('pantilt_control',
+        self._service = rospy.Service('sebot_vision/pantilt_control',
                                 PantiltControl, self.handle_pantilt_control)
 
     def setup_cameras(self):
-        self._service = rospy.Service('create_panoramic',
+        self._service = rospy.Service('sebot_vision/create_panoramic',
                                 Panoramic, self.handle_create_panoramic)
 
-
-    def load_configuration(self):
-        pass
-
-
     def handle_pantilt_control(self, req):
+        operation_successful = False
 
         print("operation_type = ", req.operation_type)
         print("operation_specification | required_value = %s | %s" % (
             req.operation_specification, req.required_value))
-
+            
         if req.operation_type == "set_angle":
-            panomaric = set_angle_pantilt(self._ser)
+            if self._use_sim_time:
+                panomaric = set_angle_pantilt_simulated(self._pantilt_serial)
+            else:
+                panomaric = set_angle_pantilt(self._pantilt_serial)
             panomaric.set_angle(req.operation_specification, req.required_value)
-            return PantiltControlResponse(True)
+            operation_successful = True
 
         elif req.operation_type == "teleoperation":
-            teleop = teleop_pantilt(self._ser)
+            if self._use_sim_time:
+                teleop = teleop_pantilt_simulated(self._pantilt_serial)
+            else:
+                teleop = teleop_pantilt(self._pantilt_serial)
             print("req.operation_type == teleoperation")
             teleop.teleoperation(req.operation_specification, req.required_value)
-            return PantiltControlResponse(True)
+            operation_successful = True
 
-        else:
-            return PantiltControlResponse(False)
-            
-    def handle_create_panoramic(self):
+        return PantiltControlResponse(operation_successful)
+
+
+    def handle_create_panoramic(operation_succesful):
         pass
 
 
