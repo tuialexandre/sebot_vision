@@ -67,7 +67,7 @@ class PanoramicManager:
         return PantiltControlResponse(operation_successful)
 
 
-    def handle_create_panoramic(operation_succesful):
+    def handle_create_panoramic(self):
         pass
 
 
